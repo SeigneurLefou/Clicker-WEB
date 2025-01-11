@@ -192,7 +192,7 @@ class Product {
         productDiv.appendChild(document.createElement('hr'));
 
         const stockH2 = document.createElement('h2');
-        stockH2.innerHTML = `Unité en stock : <span class='p${this.letter}S'>0</span>`;
+        stockH2.innerHTML = `Unité en stock : <span class='p${this.letter}S'>0</span>`; // exemple pAS = 
         productDiv.appendChild(stockH2);
 
         const producedH3 = document.createElement('h3');
@@ -254,7 +254,7 @@ class Product {
         const sellParagraph = document.createElement('p');
         sellParagraph.innerHTML = `
             Prix : <span class='p${this.letter}P'>0.00</span> $<br>
-            <button id='sP${this.letter}'><span class='p${this.letter}SN'>0</span> unités</button><br>
+            <button id='p${this.letter}SN'><span class='p${this.letter}SN'>0</span> unités</button><br>
             Unités en circulation : <span class='p${this.letter}C'>0</span>
         `;
         sellDiv.appendChild(sellParagraph);
@@ -289,6 +289,61 @@ class Product {
             rM2.modifyTextByClassName('rM2S', 'stock');
         }
     }
+    changeSellNumber() {
+        if (this.value != NaN) {
+            this.sellNumber = parseInt(this.value);
+            this.modifyTextByClassName('pASN', 'sellNumber');
+        }
+    }
+    functionPriceSimulation() {
+        this.changePrice();
+        this.modifyTextByClassName('pAP', 'price');
+    }
+    changePrice() {
+        let tmp = 0;
+        for (let el of this.recipe) {
+            tmp += el[1] * el[0].actualPrice;
+        }
+        this.actualPrice = truncateFloat(tmp * 1.2, 0);
+    }
+    sellProduct() {
+        if (this.sellNumber <= this.nbInventory) {
+            ind.money += this.sellNumber * this.actualPrice
+            this.nbCirculation += this.sellNumber;
+            this.nbInventory -= this.sellNumber;
+        } else if (this.sellNumber > this.nbInventory) {
+            ind.money += this.nbInventory * this.actualPrice;
+            this.nbCirculation += this.nbInventory;
+            this.nbInventory = 0;
+        }
+        ind.money = Math.floor(ind.money * 100)/100;
+        ind.modifyTextByClassName('mV', 'money');
+        this.modifyTextByClassName('pAS', 'stock');
+        this.modifyTextByClassName('pAC', 'circulation');
+    }
+    addAutoclickerInProduction() {
+        if (ac.totalAutoclickers - ac.usingAutoclickers > 0) {
+            this.assignAutoclickers++;
+            ac.usingAutoclickers++;
+            this.timeInterval = (1.0 - (this.assignAutoclickers - 1) * 0.1) * 2000;
+            this.modifyTextByClassName('pAA', 'autoclickers');
+            ac.modifyTextByClassName('acU', 'using');
+        }
+        if (this.autoclicker !== null) {clearInterval(this.autoclicker);}
+        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction(), this.timeInterval);}
+    }
+    liberateAutoclickerInProduction() {
+        if (pA.assignAutoclickers > 0) {
+            pA.assignAutoclickers--;
+            ac.usingAutoclickers--;
+            ac.modifyTextByClassName()
+            pA.timeInterval = (1.0 - (pA.assignAutoclickers - 1) * 0.1) * 2000;
+            pA.modifyTextByClassName('pAA', 'autoclickers');
+            ac.modifyTextByClassName('acU', 'using');
+        }
+        if (pA.autoclicker !== null) {clearInterval(pA.autoclicker);}
+        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction(), this.timeInterval);}
+    }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
         let value = '';
@@ -310,13 +365,6 @@ class Product {
                 break;
         }
         elements.forEach(element => element.innerText = value);
-    }
-    changePrice() {
-        let tmp = 0;
-        for (let el of this.recipe) {
-            tmp += el[1] * el[0].actualPrice;
-        }
-        this.actualPrice = truncateFloat(tmp * 1.2, 0);
     }
 }
 class Industry {
@@ -394,434 +442,32 @@ ac.initialisation()
 // Product
 // Product A
 document.getElementById('pAPB').addEventListener('click', pA.clickProduction());
-document.getElementById('pASI').addEventListener('input', function() {
-    if (this.value != NaN) {
-        pA.sellNumber = parseInt(this.value);
-        pA.modifyTextByClassName('pASN', 'sellNumber');
-    }
-});
-pA.priceSimulation = setInterval(function() {
-    pA.changePrice();
-    pA.modifyTextByClassName('pAP', 'price');
-}, Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('sPA').addEventListener('click', function() {
-    if (pA.sellNumber <= pA.nbInventory) {
-        ind.money += pA.sellNumber * pA.actualPrice
-        pA.nbCirculation += pA.sellNumber;
-        pA.nbInventory -= pA.sellNumber;
-    } else if (pA.sellNumber > pA.nbInventory) {
-        ind.money += pA.nbInventory * pA.actualPrice;
-        pA.nbCirculation += pA.nbInventory;
-        pA.nbInventory = 0;
-    }
-    ind.money = Math.floor(ind.money * 100)/100;
-    ind.modifyTextByClassName('mV', 'money');
-    pA.modifyTextByClassName('pAS', 'stock');
-    pA.modifyTextByClassName('pAC', 'circulation');
-});
-document.getElementById('pAAAc').addEventListener('click', function() {
-    if (ac.totalAutoclickers - ac.usingAutoclickers > 0) {
-        pA.assignAutoclickers++;
-        ac.usingAutoclickers++;
-        pA.timeInterval = (1.0 - (pA.assignAutoclickers - 1) * 0.1) * 2000;
-        pA.modifyTextByClassName('pAA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pA.autoclicker !== null) {
-        clearInterval(pA.autoclicker);
-    }
-    if (pA.assignAutoclickers > 0) {
-        pA.autoclicker = setInterval(function() {
-            pA.v = true;
-            for (let i = 0; i < pA.recipe.length; i++) {
-                if (pA.recipe[i][0].stock < pA.recipe[i][1]) {
-                    pA.v = false;
-                }
-            } 
-            if (pA.v) {   
-                pA.nbInventory++;
-                pA.nbTotal++;
-                for (let i = 0; i < pA.recipe.length; i++) {
-                    pA.recipe[i][0].stock -= pA.recipe[i][1];
-                } 
-                pA.modifyTextByClassName('pAS', 'stock');
-                pA.modifyTextByClassName('pAT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pA.timeInterval);
-    }
-});
-document.getElementById('pALAc').addEventListener('click', function() {
-    if (pA.assignAutoclickers > 0) {
-        pA.assignAutoclickers--;
-        ac.usingAutoclickers--;
-        ac.modifyTextByClassName()
-        pA.timeInterval = (1.0 - (pA.assignAutoclickers - 1) * 0.1) * 2000;
-        pA.modifyTextByClassName('pAA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pA.autoclicker !== null) {
-        clearInterval(pA.autoclicker);
-    }
-    if (pA.assignAutoclickers > 0) {
-        pA.autoclicker = setInterval(function() {
-            pA.v = true;
-            for (let i = 0; i < pA.recipe.length; i++) {
-                if (pA.recipe[i][0].stock < pA.recipe[i][1]) {
-                    pA.v = false;
-                }
-            } 
-            if (pA.v) {   
-                pA.nbInventory++;
-                pA.nbTotal++;
-                for (let i = 0; i < pA.recipe.length; i++) {
-                    pA.recipe[i][0].stock -= pA.recipe[i][1];
-                } 
-                pA.modifyTextByClassName('pAS', 'stock');
-                pA.modifyTextByClassName('pAT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pA.timeInterval);
-    }
-});
-
+document.getElementById('pASI').addEventListener('input', pA.changeSellNumber());
+pA.priceSimulation = setInterval(pA.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
+document.getElementById('pASN').addEventListener('click', pA.sellProduct());
+document.getElementById('pAAAc').addEventListener('click', pA.addAutoclickerInProduction());
+document.getElementById('pALAc').addEventListener('click', pA.liberateAutoclickerInProduction());
 // Product B
-document.getElementById('pBPB').addEventListener('click', function() {
-    pB.v = true;
-    for (let i = 0; i < pB.recipe.length; i++) {
-        if (pB.recipe[i][0].stock < pB.recipe[i][1]) {
-            pB.v = false;
-        }
-    } 
-    if (pB.v) {   
-        pB.nbInventory++;
-        pB.nbTotal++;
-        for (let i = 0; i < pB.recipe.length; i++) {
-            pB.recipe[i][0].stock -= pB.recipe[i][1];
-        } 
-        pB.modifyTextByClassName('pBS', 'stock');
-        pB.modifyTextByClassName('pBT', 'total');
-        rM1.modifyTextByClassName('rM1S', 'stock');
-        rM2.modifyTextByClassName('rM2S', 'stock');
-    }
-});
-document.getElementById('pBSI').addEventListener('input', function() {
-    if (this.value != NaN) {
-        pB.sellNumber = parseInt(this.value);
-        pB.modifyTextByClassName('pBSN', 'sellNumber');
-    }
-});
-pB.priceSimulation = setInterval(function() {
-    pB.changePrice();
-    pB.modifyTextByClassName('pBP', 'price');
-}, Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('sPB').addEventListener('click', function() {
-    if (pB.sellNumber <= pB.nbInventory) {
-        ind.money += pB.sellNumber * pB.actualPrice
-        pB.nbCirculation += pB.sellNumber;
-        pB.nbInventory -= pB.sellNumber;
-    } else if (pB.sellNumber > pB.nbInventory) {
-        ind.money += pB.nbInventory * pB.actualPrice;
-        pB.nbCirculation += pB.nbInventory;
-        pB.nbInventory = 0;
-    }
-    ind.money = Math.floor(ind.money * 100)/100;
-    ind.modifyTextByClassName('mV', 'money');
-    pB.modifyTextByClassName('pBS', 'stock');
-    pB.modifyTextByClassName('pBC', 'circulation');
-});
-document.getElementById('pBAAc').addEventListener('click', function() {
-    if (ac.totalAutoclickers - ac.usingAutoclickers > 0) {
-        pB.assignAutoclickers++;
-        ac.usingAutoclickers++;
-        pB.timeInterval = (1.0 - (pB.assignAutoclickers - 1) * 0.1) * 2000;
-        pB.modifyTextByClassName('pBA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pB.autoclicker !== null) {
-        clearInterval(pB.autoclicker);
-    }
-    if (pB.assignAutoclickers > 0) {
-        pB.autoclicker = setInterval(function() {
-            pB.v = true;
-            for (let i = 0; i < pB.recipe.length; i++) {
-                if (pB.recipe[i][0].stock < pB.recipe[i][1]) {
-                    pB.v = false;
-                }
-            } 
-            if (pB.v) {   
-                pB.nbInventory++;
-                pB.nbTotal++;
-                for (let i = 0; i < pB.recipe.length; i++) {
-                    pB.recipe[i][0].stock -= pB.recipe[i][1];
-                } 
-                pB.modifyTextByClassName('pBS', 'stock');
-                pB.modifyTextByClassName('pBT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pB.timeInterval);
-    }
-});
-document.getElementById('pBLAc').addEventListener('click', function() {
-    if (pB.assignAutoclickers > 0) {
-        pB.assignAutoclickers--;
-        ac.usingAutoclickers--;
-        ac.modifyTextByClassName()
-        pB.timeInterval = (1.0 - (pB.assignAutoclickers - 1) * 0.1) * 2000;
-        pB.modifyTextByClassName('pBA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pB.autoclicker !== null) {
-        clearInterval(pB.autoclicker);
-    }
-    if (pB.assignAutoclickers > 0) {
-        pB.autoclicker = setInterval(function() {
-            pB.v = true;
-            for (let i = 0; i < pB.recipe.length; i++) {
-                if (pB.recipe[i][0].stock < pB.recipe[i][1]) {
-                    pB.v = false;
-                }
-            } 
-            if (pB.v) {   
-                pB.nbInventory++;
-                pB.nbTotal++;
-                for (let i = 0; i < pB.recipe.length; i++) {
-                    pB.recipe[i][0].stock -= pB.recipe[i][1];
-                } 
-                pB.modifyTextByClassName('pBS', 'stock');
-                pB.modifyTextByClassName('pBT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pB.timeInterval);
-    }
-});
-
+document.getElementById('pBPB').addEventListener('click', pB.clickProduction());
+document.getElementById('pBSI').addEventListener('input', pB.changeSellNumber());
+pB.priceSimulation = setInterval(pB.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
+document.getElementById('pBSN').addEventListener('click', pB.sellProduct());
+document.getElementById('pBAAc').addEventListener('click', pB.addAutoclickerInProduction());
+document.getElementById('pBLAc').addEventListener('click', pB.liberateAutoclickerInProduction());
 // Product C
-document.getElementById('pCPB').addEventListener('click', function() {
-    pC.v = true;
-    for (let i = 0; i < pC.recipe.length; i++) {
-        if (pC.recipe[i][0].stock < pC.recipe[i][1]) {
-            pC.v = false;
-        }
-    } 
-    if (pC.v) {   
-        pC.nbInventory++;
-        pC.nbTotal++;
-        for (let i = 0; i < pC.recipe.length; i++) {
-            pC.recipe[i][0].stock -= pC.recipe[i][1];
-        } 
-        pC.modifyTextByClassName('pCS', 'stock');
-        pC.modifyTextByClassName('pCT', 'total');
-        rM1.modifyTextByClassName('rM1S', 'stock');
-        rM2.modifyTextByClassName('rM2S', 'stock');
-    }
-});
-document.getElementById('pCSI').addEventListener('input', function() {
-    pC.sellNumber = parseInt(this.value);
-    pC.modifyTextByClassName('pCSN', 'sellNumber');
-});
-pC.priceSimulation = setInterval(function() {
-    pC.changePrice();
-    pC.modifyTextByClassName('pCP', 'price');
-}, Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('sPA').addEventListener('click', function() {
-    if (pC.sellNumber <= pC.nbInventory) {
-        ind.money += pC.sellNumber * pC.actualPrice
-        pC.nbCirculation += pC.sellNumber;
-        pC.nbInventory -= pC.sellNumber;
-    } else if (pC.sellNumber > pC.nbInventory) {
-        ind.money += pC.nbInventory * pC.actualPrice;
-        pC.nbCirculation += pC.nbInventory;
-        pC.nbInventory = 0;
-    }
-    ind.money = Math.floor(ind.money * 100)/100;
-    ind.modifyTextByClassName('mV', 'money');
-    pC.modifyTextByClassName('pCS', 'stock');
-    pC.modifyTextByClassName('pCC', 'circulation');
-});
-document.getElementById('pCAAc').addEventListener('click', function() {
-    if (ac.totalAutoclickers - ac.usingAutoclickers > 0) {
-        pC.assignAutoclickers++;
-        ac.usingAutoclickers++;
-        pC.timeInterval = (1.0 - (pC.assignAutoclickers - 1) * 0.1) * 2000;
-        pC.modifyTextByClassName('pCA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pC.autoclicker !== null) {
-        clearInterval(pC.autoclicker);
-    }
-    if (pC.assignAutoclickers > 0) {
-        pC.autoclicker = setInterval(function() {
-            pC.v = true;
-            for (let i = 0; i < pC.recipe.length; i++) {
-                if (pC.recipe[i][0].stock < pC.recipe[i][1]) {
-                    pC.v = false;
-                }
-            } 
-            if (pC.v) {   
-                pC.nbInventory++;
-                pC.nbTotal++;
-                for (let i = 0; i < pC.recipe.length; i++) {
-                    pC.recipe[i][0].stock -= pC.recipe[i][1];
-                } 
-                pC.modifyTextByClassName('pCS', 'stock');
-                pC.modifyTextByClassName('pCT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pC.timeInterval);
-    }
-});
-document.getElementById('pCLAc').addEventListener('click', function() {
-    if (pC.assignAutoclickers > 0) {
-        pC.assignAutoclickers--;
-        ac.usingAutoclickers--;
-        ac.modifyTextByClassName()
-        pC.timeInterval = (1.0 - (pC.assignAutoclickers - 1) * 0.1) * 2000;
-        pC.modifyTextByClassName('pCA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pC.autoclicker !== null) {
-        clearInterval(pC.autoclicker);
-    }
-    if (pC.assignAutoclickers > 0) {
-        pC.autoclicker = setInterval(function() {
-            pC.v = true;
-            for (let i = 0; i < pC.recipe.length; i++) {
-                if (pC.recipe[i][0].stock < pC.recipe[i][1]) {
-                    pC.v = false;
-                }
-            } 
-            if (pC.v) {   
-                pC.nbInventory++;
-                pC.nbTotal++;
-                for (let i = 0; i < pC.recipe.length; i++) {
-                    pC.recipe[i][0].stock -= pC.recipe[i][1];
-                } 
-                pC.modifyTextByClassName('pCS', 'stock');
-                pC.modifyTextByClassName('pCT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pC.timeInterval);
-    }
-});
-
+document.getElementById('pCPB').addEventListener('click', pC.clickProduction());
+document.getElementById('pCSI').addEventListener('input', pC.changeSellNumber());
+pC.priceSimulation = setInterval(pC.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
+document.getElementById('pASN').addEventListener('click', pC.sellProduct());
+document.getElementById('pCAAc').addEventListener('click', pC.addAutoclickerInProduction());
+document.getElementById('pCLAc').addEventListener('click', pC.liberateAutoclickerInProduction());
 // Product D
-document.getElementById('pDPB').addEventListener('click', function() {
-    pD.v = true;
-    for (let i = 0; i < pD.recipe.length; i++) {
-        if (pD.recipe[i][0].stock < pD.recipe[i][1]) {
-            pD.v = false;
-        }
-    } 
-    if (pD.v) {   
-        pD.nbInventory++;
-        pD.nbTotal++;
-        for (let i = 0; i < pD.recipe.length; i++) {
-            pD.recipe[i][0].stock -= pD.recipe[i][1];
-        } 
-        pD.modifyTextByClassName('pDS', 'stock');
-        pD.modifyTextByClassName('pDT', 'total');
-        rM1.modifyTextByClassName('rM1S', 'stock');
-        rM2.modifyTextByClassName('rM2S', 'stock');
-    }
-});
-document.getElementById('pDSI').addEventListener('input', function() {
-    pD.sellNumber = parseInt(this.value);
-    pD.modifyTextByClassName('pDSN', 'sellNumber');
-});
-pD.priceSimulation = setInterval(function() {
-    pD.changePrice();
-    pD.modifyTextByClassName('pDP', 'price');
-}, Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('sPA').addEventListener('click', function() {
-    if (pD.sellNumber <= pD.nbInventory) {
-        ind.money += pD.sellNumber * pD.actualPrice
-        pD.nbCirculation += pD.sellNumber;
-        pD.nbInventory -= pD.sellNumber;
-    } else if (pD.sellNumber > pD.nbInventory) {
-        ind.money += pD.nbInventory * pD.actualPrice;
-        pD.nbCirculation += pD.nbInventory;
-        pD.nbInventory = 0;
-    }
-    ind.money = Math.floor(ind.money * 100)/100;
-    ind.modifyTextByClassName('mV', 'money');
-    pD.modifyTextByClassName('pDS', 'stock');
-    pD.modifyTextByClassName('pDC', 'circulation');
-});
-document.getElementById('pDAAc').addEventListener('click', function() {
-    if (ac.totalAutoclickers - ac.usingAutoclickers > 0) {
-        pD.assignAutoclickers++;
-        ac.usingAutoclickers++;
-        pD.timeInterval = (1.0 - (pD.assignAutoclickers - 1) * 0.1) * 2000;
-        pD.modifyTextByClassName('pDA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pD.autoclicker !== null) {
-        clearInterval(pD.autoclicker);
-    }
-    if (pD.assignAutoclickers > 0) {
-        pD.autoclicker = setInterval(function() {
-            pD.v = true;
-            for (let i = 0; i < pD.recipe.length; i++) {
-                if (pD.recipe[i][0].stock < pD.recipe[i][1]) {
-                    pD.v = false;
-                }
-            } 
-            if (pD.v) {   
-                pD.nbInventory++;
-                pD.nbTotal++;
-                for (let i = 0; i < pD.recipe.length; i++) {
-                    pD.recipe[i][0].stock -= pD.recipe[i][1];
-                } 
-                pD.modifyTextByClassName('pDS', 'stock');
-                pD.modifyTextByClassName('pDT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pD.timeInterval);
-    }
-});
-document.getElementById('pDLAc').addEventListener('click', function() {
-    if (pD.assignAutoclickers > 0) {
-        pD.assignAutoclickers--;
-        ac.usingAutoclickers--;
-        ac.modifyTextByClassName()
-        pD.timeInterval = (1.0 - (pD.assignAutoclickers - 1) * 0.1) * 2000;
-        pD.modifyTextByClassName('pDA', 'autoclickers');
-        ac.modifyTextByClassName('acU', 'using');
-    }
-    if (pD.autoclicker !== null) {
-        clearInterval(pD.autoclicker);
-    }
-    if (pD.assignAutoclickers > 0) {
-        pD.autoclicker = setInterval(function() {
-            pD.v = true;
-            for (let i = 0; i < pD.recipe.length; i++) {
-                if (pD.recipe[i][0].stock < pD.recipe[i][1]) {
-                    pD.v = false;
-                }
-            } 
-            if (pD.v) {   
-                pD.nbInventory++;
-                pD.nbTotal++;
-                for (let i = 0; i < pD.recipe.length; i++) {
-                    pD.recipe[i][0].stock -= pD.recipe[i][1];
-                } 
-                pD.modifyTextByClassName('pDS', 'stock');
-                pD.modifyTextByClassName('pDT', 'total');
-                rM1.modifyTextByClassName('rM1S', 'stock');
-                rM2.modifyTextByClassName('rM2S', 'stock');
-            }
-        }, pD.timeInterval);
-    }
-});
-
+document.getElementById('pDPB').addEventListener('click', pD.clickProduction());
+document.getElementById('pDSI').addEventListener('input', pD.changeSellNumber());
+pD.priceSimulation = setInterval(pD.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
+document.getElementById('pDSN').addEventListener('click', pD.sellProduct());
+document.getElementById('pDAAc').addEventListener('click', pD.addAutoclickerInProduction());
+document.getElementById('pDLAc').addEventListener('click', pC.liberateAutoclickerInProduction());
 // Row Materials
 // Raw Materials 1
 document.getElementById('rM1B').addEventListener('click', function() {
@@ -879,7 +525,7 @@ document.getElementById('acA').addEventListener('click', function() {
         ac.modifyTextByClassName('acT', 'total');
     }
 });
-thispriceAcSimulation = setInterval(function() {
+this.priceAcSimulation = setInterval(function() {
     ac.changePrice();
     ac.modifyTextByClassName('acP', 'price');
 }, Math.floor(Math.random()*(2000-1000)+1000));
