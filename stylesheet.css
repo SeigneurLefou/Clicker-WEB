@@ -1,0 +1,29 @@
+body {
+    font-family: 'Arial', sans-serif;
+}
+#production {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 20px;
+    align-items: start;
+}
+#ressource {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 20px;
+    align-items: start;
+}
+h2 {
+    grid-column: 1 / -1;
+}
+nav {
+    background-color: white;
+    z-index: 3;
+    position: sticky;
+    top: 0;
+}
+nav ul {
+	display: grid;
+    grid-template-columns: repeat(4, 4fr);
+    list-style-type: none;
+}
