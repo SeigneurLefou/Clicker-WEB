@@ -270,6 +270,25 @@ class Product {
         this.modifyTextByClassName(`p${this.letter}P`, 'price');
         this.modifyTextByClassName(`p${this.letter}R`, 'recipe');
     }
+    clickProduction() {
+        this.v = true;
+        for (let i = 0; i < this.recipe.length; i++) {
+            if (this.recipe[i][0].stock < this.recipe[i][1]) {
+                this.v = false;
+            }
+        } 
+        if (this.v) {   
+            this.nbInventory++;
+            this.nbTotal++;
+            for (let i = 0; i < this.recipe.length; i++) {
+                this.recipe[i][0].stock -= this.recipe[i][1];
+            } 
+            this.modifyTextByClassName('pAS', 'stock');
+            this.modifyTextByClassName('pAT', 'total');
+            rM1.modifyTextByClassName('rM1S', 'stock');
+            rM2.modifyTextByClassName('rM2S', 'stock');
+        }
+    }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
         let value = '';
@@ -374,25 +393,7 @@ ac.initialisation()
 // Boucle de jeu
 // Product
 // Product A
-document.getElementById('pAPB').addEventListener('click', function() {
-    pA.v = true;
-    for (let i = 0; i < pA.recipe.length; i++) {
-        if (pA.recipe[i][0].stock < pA.recipe[i][1]) {
-            pA.v = false;
-        }
-    } 
-    if (pA.v) {   
-        pA.nbInventory++;
-        pA.nbTotal++;
-        for (let i = 0; i < pA.recipe.length; i++) {
-            pA.recipe[i][0].stock -= pA.recipe[i][1];
-        } 
-        pA.modifyTextByClassName('pAS', 'stock');
-        pA.modifyTextByClassName('pAT', 'total');
-        rM1.modifyTextByClassName('rM1S', 'stock');
-        rM2.modifyTextByClassName('rM2S', 'stock');
-    }
-});
+document.getElementById('pAPB').addEventListener('click', pA.clickProduction());
 document.getElementById('pASI').addEventListener('input', function() {
     if (this.value != NaN) {
         pA.sellNumber = parseInt(this.value);
