@@ -4,19 +4,35 @@ function truncateFloat(nb, d) {
     return Math.trunc(nb * factor) / factor;
 }
 // Class
+class Industry {
+    constructor() {
+        this.money = 0.00;
+        this.maxTimeInterval = 1500;
+        this.minTimeInterval = 500;
+    }
+    modifyTextByClassName(nClass, wThis) {
+        let elements = document.querySelectorAll(`.${nClass}`);
+        let value;
+        switch (wThis) {
+            case 'money': value = this.money; break;
+        }
+        elements.forEach(element => element.innerText = value);
+    }
+}
 class Autoclicker {
-    constructor(pR, actualPrice = 1.00, volacity = 0.3, trend = 0.0015) {
+    constructor(aP, ecart, volacity, trend) {
         this.name = 'Autoclicker';
         this.totalAutoclickers = 0;
         this.usingAutoclickers = 0;
         this.priceAcSimulation = null;
-        this.actualPrice = actualPrice;
-        this.priceRange = pR;
+        this.basePrice = aP;
+        this.actualPrice = aP;
+        this.priceRange = [aP-ecart, aP+ecart];
         this.volatility = volacity;
         this.trend = trend;
         this.priceEvolution = new Array;
     }
-    initialisation() {
+    get initialisation() {
         const autoclickerHeader = document.createElement('h2');
         autoclickerHeader.innerHTML = '<br>Autoclicker :<hr>';
 
@@ -49,7 +65,7 @@ class Autoclicker {
 
         const buyText = document.createTextNode('Cliquer pour acheter un autoclicker : ');
         const buyButton = document.createElement('button');
-        buyButton.id = 'acA';
+        buyButton.id = 'acB';
         buyButton.textContent = 'Acheter';
         paragraph.appendChild(buyText);
         paragraph.appendChild(buyButton);
@@ -57,7 +73,34 @@ class Autoclicker {
         document.getElementById('autoclickers').appendChild(autoclickerHeader);
         document.getElementById('autoclickers').appendChild(paragraph);
 
+        this.modifyTextByClassName('acP', 'price');
+    }
+    get autoclickerBuying() {
+        if (ind.money >= ac.actualPrice) {
+            ind.money -= ac.actualPrice;
+            ac.totalAutoclickers++;
+            ind.money = Math.floor(ind.money * 100)/100;
+            ac.inflation;
+            ind.modifyTextByClassName('mV', 'money');
+            ac.modifyTextByClassName('acT', 'total');
+        }
+    }
+    get functionPriceAcSimulation() {
+        ac.changePrice;
         ac.modifyTextByClassName('acP', 'price');
+    }
+    get changePrice() {
+        let min = this.actualPrice - this.volatility + this.trend;
+        let max = this.actualPrice + this.volatility + this.trend;
+        let tmp = Math.random() * (Math.min(max, this.priceRange[1]) - Math.max(min, this.priceRange[0]) + 1) + Math.max(min, this.priceRange[0]);
+        this.actualPrice = truncateFloat(tmp, 0);
+        this.priceEvolution.push(this.actualPrice);
+    }
+    get inflation() {
+        this.priceRange[0] = truncateFloat(this.basePrice * 1.1, 0);
+        this.priceRange = [aP-ecart, aP+ecart];
+        this.actualPrice = this.changePrice;
+        this.modifyTextByClassName('acP', 'price');
     }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
@@ -70,22 +113,9 @@ class Autoclicker {
         }
         elements.forEach(element => element.innerText = value);
     }
-    changePrice() {
-        //  Génère un changement aléatoire du prix dans une plage
-        let randomFactor = (Math.random() * 2 - 1) * this.volatility;
-        //  Applique la tendance (positif ou négatif) au prix
-        let priceChange = this.actualPrice * (randomFactor + this.trend);
-        let newPrice = this.actualPrice + priceChange;
-        this.actualPrice =  Math.floor(Math.min(Math.max(this.priceRange[0], newPrice), this.priceRange[1]) * 100)/100;
-        this.priceEvolution.push(this.actualPrice)
-    }
-    get inflation() {
-        this.priceRange[0] = Math.floor(this.priceRange[0] * 1.1 * 100) / 100;
-        this.priceRange[1] = Math.floor(this.priceRange[1] * 1.1 * 100) / 100;
-    }
 }
 class RawMaterial {
-    constructor(n, nb, aP, ecart, volacity = 0.3, trend = 0.002, bS = 0) {
+    constructor(n, nb, aP, ecart, volacity, trend, bS = 0) {
         this.name = n;
         this.number = nb;
         this.stock = bS;
@@ -97,7 +127,7 @@ class RawMaterial {
         this.trend = trend;
         this.priceEvolution = new Array;
     }
-    initialisation() {
+    get initialisation() {
         const rowMaterialsDiv = document.createElement('div');
         rowMaterialsDiv.id = `rowMaterials${this.number}`;
 
@@ -120,7 +150,7 @@ class RawMaterial {
         paragraph.appendChild(stockSpanValue);
         paragraph.appendChild(document.createElement('br'));
 
-        const priceText = document.createTextNode('Prix : ');
+        const priceText = document.createTextNode('Prix de 100 unités : ');
         const priceSpan = document.createElement('span');
         priceSpan.className = `rM${this.number}P`;
         priceSpan.textContent = '0.00';
@@ -142,6 +172,28 @@ class RawMaterial {
         this.modifyTextByClassName(`rM${this.number}S`, 'stock');
         this.modifyTextByClassName(`rM${this.number}P`, 'price');
     }
+    get buyRawMaterials() {
+        if (ind.money >= this.actualPrice) {
+            ind.money -= this.actualPrice;
+            this.stock += 100;
+            ind.money = Math.floor(ind.money * 100)/100;
+            this.inflation;
+            ind.modifyTextByClassName('mV', 'money');
+            this.modifyTextByClassName('acT', 'total');
+        }
+    }
+    get functionPriceRMSimulation() {
+        this.changePrice;
+        this.modifyTextByClassName(`rM${this.number}P`, 'price');
+    }
+    get changePrice() {
+        let min = this.actualPrice - this.volatility + this.trend;
+        let max = this.actualPrice + this.volatility + this.trend;
+        let tmp = Math.random() * (Math.min(max, this.priceRange[1]) - Math.max(min, this.priceRange[0]) + 1) + Math.max(min, this.priceRange[0]);
+        this.actualPrice = truncateFloat(tmp, 0);
+        this.priceEvolution.push(this.actualPrice);
+        this.forHundredPrice = truncateFloat(tmp * 100, 0);
+    }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
         let value;
@@ -151,14 +203,6 @@ class RawMaterial {
             case 'price': value = this.forHundredPrice; break;
         }
         elements.forEach(element => element.innerText = value);
-    }
-    changePrice() {
-        let min = this.actualPrice - this.volatility + this.trend;
-        let max = this.actualPrice + this.volatility + this.trend;
-        let tmp = Math.random() * (Math.min(max, this.priceRange[1]) - Math.max(min, this.priceRange[0]) + 1) + Math.max(min, this.priceRange[0]);
-        this.actualPrice = truncateFloat(tmp, 0);
-        this.priceEvolution.push(this.actualPrice);
-        this.forHundredPrice = truncateFloat(tmp * 100, 0);
     }
 }
 class Product {
@@ -181,7 +225,7 @@ class Product {
         this.recipe = recipe;
         this.v = true;
     }
-    initialisation() {
+    get initialisation() {
         const productDiv = document.createElement('div');
         productDiv.id = `product${this.letter}`;
         const titleH1 = document.createElement('h1');
@@ -192,7 +236,7 @@ class Product {
         productDiv.appendChild(document.createElement('hr'));
 
         const stockH2 = document.createElement('h2');
-        stockH2.innerHTML = `Unité en stock : <span class='p${this.letter}S'>0</span>`; // exemple pAS = 
+        stockH2.innerHTML = `Unité en stock : <span class='p${this.letter}S'>0</span>`;
         productDiv.appendChild(stockH2);
 
         const producedH3 = document.createElement('h3');
@@ -270,7 +314,7 @@ class Product {
         this.modifyTextByClassName(`p${this.letter}P`, 'price');
         this.modifyTextByClassName(`p${this.letter}R`, 'recipe');
     }
-    clickProduction() {
+    get clickProduction() {
         this.v = true;
         for (let i = 0; i < this.recipe.length; i++) {
             if (this.recipe[i][0].stock < this.recipe[i][1]) {
@@ -282,31 +326,30 @@ class Product {
             this.nbTotal++;
             for (let i = 0; i < this.recipe.length; i++) {
                 this.recipe[i][0].stock -= this.recipe[i][1];
+                this.recipe[i][0].modifyTextByClassName(`rM${this.recipe[i][0].number}S`, 'stock');
             } 
-            this.modifyTextByClassName('pAS', 'stock');
-            this.modifyTextByClassName('pAT', 'total');
-            rM1.modifyTextByClassName('rM1S', 'stock');
-            rM2.modifyTextByClassName('rM2S', 'stock');
+            this.modifyTextByClassName(`p${this.letter}S`, 'stock');
+            this.modifyTextByClassName(`p${this.letter}T`, 'total');
         }
     }
-    changeSellNumber() {
+    get changeSellNumber() {
         if (this.value != NaN) {
             this.sellNumber = parseInt(this.value);
-            this.modifyTextByClassName('pASN', 'sellNumber');
+            this.modifyTextByClassName(`p${this.letter}SN`, 'sellNumber');
         }
     }
-    functionPriceSimulation() {
-        this.changePrice();
-        this.modifyTextByClassName('pAP', 'price');
+    get functionPriceSimulation() {
+        this.changePrice;
+        this.modifyTextByClassName(`p${this.letter}P`, 'price');
     }
-    changePrice() {
+    get changePrice() {
         let tmp = 0;
         for (let el of this.recipe) {
             tmp += el[1] * el[0].actualPrice;
         }
         this.actualPrice = truncateFloat(tmp * 1.2, 0);
     }
-    sellProduct() {
+    get sellProduct() {
         if (this.sellNumber <= this.nbInventory) {
             ind.money += this.sellNumber * this.actualPrice
             this.nbCirculation += this.sellNumber;
@@ -318,31 +361,31 @@ class Product {
         }
         ind.money = Math.floor(ind.money * 100)/100;
         ind.modifyTextByClassName('mV', 'money');
-        this.modifyTextByClassName('pAS', 'stock');
-        this.modifyTextByClassName('pAC', 'circulation');
+        this.modifyTextByClassName(`p${this.letter}S`, 'stock');
+        this.modifyTextByClassName(`p${this.letter}C`, 'circulation');
     }
-    addAutoclickerInProduction() {
+    get addAutoclickerInProduction() {
         if (ac.totalAutoclickers - ac.usingAutoclickers > 0) {
             this.assignAutoclickers++;
             ac.usingAutoclickers++;
             this.timeInterval = (1.0 - (this.assignAutoclickers - 1) * 0.1) * 2000;
-            this.modifyTextByClassName('pAA', 'autoclickers');
+            this.modifyTextByClassName(`p${this.letter}A`, 'autoclickers');
             ac.modifyTextByClassName('acU', 'using');
         }
         if (this.autoclicker !== null) {clearInterval(this.autoclicker);}
-        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction(), this.timeInterval);}
+        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction, this.timeInterval);}
     }
-    liberateAutoclickerInProduction() {
+    get liberateAutoclickerInProduction() {
         if (pA.assignAutoclickers > 0) {
             pA.assignAutoclickers--;
             ac.usingAutoclickers--;
             ac.modifyTextByClassName()
             pA.timeInterval = (1.0 - (pA.assignAutoclickers - 1) * 0.1) * 2000;
-            pA.modifyTextByClassName('pAA', 'autoclickers');
+            pA.modifyTextByClassName(`p${this.letter}A`, 'autoclickers');
             ac.modifyTextByClassName('acU', 'using');
         }
         if (pA.autoclicker !== null) {clearInterval(pA.autoclicker);}
-        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction(), this.timeInterval);}
+        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction, this.timeInterval);}
     }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
@@ -363,19 +406,6 @@ class Product {
                     }
                 }
                 break;
-        }
-        elements.forEach(element => element.innerText = value);
-    }
-}
-class Industry {
-    constructor() {
-        this.money = 0.00
-    }
-    modifyTextByClassName(nClass, wThis) {
-        let elements = document.querySelectorAll(`.${nClass}`);
-        let value;
-        switch (wThis) {
-            case 'money': value = this.money; break;
         }
         elements.forEach(element => element.innerText = value);
     }
@@ -415,117 +445,69 @@ let gSC = gameStyle[choice];
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
 // Row materials
-let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 5.0, 0.2, 100);
-rM1.initialisation();
-let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 250, 60, 5.0, 0.2);
-rM2.initialisation();
-let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 500, 20, 5.0, 0.2);
-rM3.initialisation();
+let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 2, 100);
+rM1.initialisation;
+let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 200, 60, 15, 0);
+rM2.initialisation;
+let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 500, 20, 5, -1);
+rM3.initialisation;
 // Product
 // Product A
 let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]]);
-pA.initialisation();
+pA.initialisation;
 // Product B
 let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]]);
-pB.initialisation();
+pB.initialisation;
 // Product C
 let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]]);
-pC.initialisation();
+pC.initialisation;
 // Product D
 let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]]);
-pD.initialisation();
+pD.initialisation;
 // Autoclicker
-let ac = new Autoclicker([1.75, 2.5], 2, 0.3, 0.001);
-ac.initialisation()
+let ac = new Autoclicker(2000, 100, 30, 2);
+ac.initialisation
 
 // Boucle de jeu
 // Product
 // Product A
-document.getElementById('pAPB').addEventListener('click', pA.clickProduction());
-document.getElementById('pASI').addEventListener('input', pA.changeSellNumber());
-pA.priceSimulation = setInterval(pA.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('pASN').addEventListener('click', pA.sellProduct());
-document.getElementById('pAAAc').addEventListener('click', pA.addAutoclickerInProduction());
-document.getElementById('pALAc').addEventListener('click', pA.liberateAutoclickerInProduction());
+document.getElementById('pAPB').addEventListener('click', () => pA.clickProduction);
+document.getElementById('pASI').addEventListener('input', () => pA.changeSellNumber);
+pA.priceSimulation = setInterval(() => pA.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+document.getElementById('pASN').addEventListener('click', () => pA.sellProduct);
+document.getElementById('pAAAc').addEventListener('click', () => pA.addAutoclickerInProduction);
+document.getElementById('pALAc').addEventListener('click', () => pA.liberateAutoclickerInProduction);
 // Product B
-document.getElementById('pBPB').addEventListener('click', pB.clickProduction());
-document.getElementById('pBSI').addEventListener('input', pB.changeSellNumber());
-pB.priceSimulation = setInterval(pB.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('pBSN').addEventListener('click', pB.sellProduct());
-document.getElementById('pBAAc').addEventListener('click', pB.addAutoclickerInProduction());
-document.getElementById('pBLAc').addEventListener('click', pB.liberateAutoclickerInProduction());
+document.getElementById('pBPB').addEventListener('click', () => pB.clickProduction);
+document.getElementById('pBSI').addEventListener('input', () => pB.changeSellNumber);
+pB.priceSimulation = setInterval(() => pB.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+document.getElementById('pBSN').addEventListener('click', () => pB.sellProduct);
+document.getElementById('pBAAc').addEventListener('click', () => pB.addAutoclickerInProduction);
+document.getElementById('pBLAc').addEventListener('click', () => pB.liberateAutoclickerInProduction);
 // Product C
-document.getElementById('pCPB').addEventListener('click', pC.clickProduction());
-document.getElementById('pCSI').addEventListener('input', pC.changeSellNumber());
-pC.priceSimulation = setInterval(pC.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('pASN').addEventListener('click', pC.sellProduct());
-document.getElementById('pCAAc').addEventListener('click', pC.addAutoclickerInProduction());
-document.getElementById('pCLAc').addEventListener('click', pC.liberateAutoclickerInProduction());
+document.getElementById('pCPB').addEventListener('click', () => pC.clickProduction);
+document.getElementById('pCSI').addEventListener('input', () => pC.changeSellNumber);
+pC.priceSimulation = setInterval(() => pC.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+document.getElementById('pASN').addEventListener('click', () => pC.sellProduct);
+document.getElementById('pCAAc').addEventListener('click', () => pC.addAutoclickerInProduction);
+document.getElementById('pCLAc').addEventListener('click', () => pC.liberateAutoclickerInProduction);
 // Product D
-document.getElementById('pDPB').addEventListener('click', pD.clickProduction());
-document.getElementById('pDSI').addEventListener('input', pD.changeSellNumber());
-pD.priceSimulation = setInterval(pD.functionPriceSimulation(), Math.floor(Math.random()*(3000-1500)+1500));
-document.getElementById('pDSN').addEventListener('click', pD.sellProduct());
-document.getElementById('pDAAc').addEventListener('click', pD.addAutoclickerInProduction());
-document.getElementById('pDLAc').addEventListener('click', pC.liberateAutoclickerInProduction());
+document.getElementById('pDPB').addEventListener('click', () => pD.clickProduction);
+document.getElementById('pDSI').addEventListener('input', () => pD.changeSellNumber);
+pD.priceSimulation = setInterval(() => pD.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+document.getElementById('pDSN').addEventListener('click', () => pD.sellProduct);
+document.getElementById('pDAAc').addEventListener('click', () => pD.addAutoclickerInProduction);
+document.getElementById('pDLAc').addEventListener('click', () => pC.liberateAutoclickerInProduction);
 // Row Materials
 // Raw Materials 1
-document.getElementById('rM1B').addEventListener('click', function() {
-    if (ind.money >= rM1.actualPrice) {
-        ind.money -= rM1.actualPrice;
-        rM1.stock += 1000;
-        ind.money = Math.floor(ind.money * 100)/100;
-        rM1.inflation;
-        ind.modifyTextByClassName('mV', 'money');
-        rM1.modifyTextByClassName('acT', 'total');
-    }
-});
-rM1.priceRMSimulation = setInterval(function() {
-    rM1.changePrice();
-    rM1.modifyTextByClassName('rM1P', 'price');
-}, Math.floor(Math.random()*(2000-1000)+1000));
+document.getElementById('rM1B').addEventListener('click', () => rM1.buyRawMaterials);
+rM1.priceRMSimulation = setInterval(() => rM1.functionPriceRMSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 // Raw Materials 2
-document.getElementById('rM2B').addEventListener('click', function() {
-    if (ind.money >= rM2.actualPrice) {
-        ind.money -= rM2.actualPrice;
-        rM2.stock += 1000;
-        ind.money = Math.floor(ind.money * 100)/100;
-        rM2.inflation;
-        ind.modifyTextByClassName('mV', 'money');
-        rM2.modifyTextByClassName('acT', 'total');
-    }
-});
-rM2.priceRMSimulation = setInterval(function() {
-    rM2.changePrice();
-    rM2.modifyTextByClassName('rM2P', 'price');
-}, Math.floor(Math.random()*(2000-1000)+1000));
+document.getElementById('rM2B').addEventListener('click', () => rM2.buyRawMaterials);
+rM2.priceRMSimulation = setInterval(() => rM2.functionPriceRMSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 // Raw Materials 3
-document.getElementById('rM3B').addEventListener('click', function() {
-    if (ind.money >= rM3.actualPrice) {
-        ind.money -= rM3.actualPrice;
-        rM3.stock += 1000;
-        ind.money = Math.floor(ind.money * 100)/100;
-        rM3.inflation;
-        ind.modifyTextByClassName('mV', 'money');
-        rM3.modifyTextByClassName('acT', 'total');
-    }
-});
-rM3.priceRMSimulation = setInterval(function() {
-    rM3.changePrice();
-    rM3.modifyTextByClassName('rM3P', 'price');
-}, Math.floor(Math.random()*(2000-1000)+1000));
+document.getElementById('rM3B').addEventListener('click', () => rM3.buyRawMaterials);
+rM3.priceRMSimulation = setInterval(() => rM3.functionPriceRMSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 // Autoclickers
-document.getElementById('acA').addEventListener('click', function() {
-    if (ind.money >= ac.actualPrice) {
-        ind.money -= ac.actualPrice;
-        ac.totalAutoclickers++;
-        ind.money = Math.floor(ind.money * 100)/100;
-        ac.inflation;
-        ind.modifyTextByClassName('mV', 'money');
-        ac.modifyTextByClassName('acT', 'total');
-    }
-});
-this.priceAcSimulation = setInterval(function() {
-    ac.changePrice();
-    ac.modifyTextByClassName('acP', 'price');
-}, Math.floor(Math.random()*(2000-1000)+1000));
+document.getElementById('acB').addEventListener('click', ac.autoclickerBuying);
+this.priceAcSimulation = setInterval(ac.functionPriceAcSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
