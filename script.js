@@ -57,7 +57,7 @@ class Autoclicker {
         const priceText = document.createTextNode('Prix : ');
         const priceSpan = document.createElement('span');
         priceSpan.className = 'acP';
-        priceSpan.textContent = '0.00';
+        priceSpan.textContent = '000';
         paragraph.appendChild(priceText);
         paragraph.appendChild(priceSpan);
         paragraph.appendChild(document.createTextNode(' $'));
@@ -79,7 +79,6 @@ class Autoclicker {
         if (ind.money >= ac.actualPrice) {
             ind.money -= ac.actualPrice;
             ac.totalAutoclickers++;
-            ind.money = Math.floor(ind.money * 100)/100;
             ac.inflation;
             ind.modifyTextByClassName('mV', 'money');
             ac.modifyTextByClassName('acT', 'total');
@@ -115,13 +114,19 @@ class Autoclicker {
     }
 }
 class RawMaterial {
-    constructor(n, nb, aP, ecart, volacity, trend, bS = 0) {
+    constructor(n, nb, aP, ecart, volacity, trend, baseInStock = false) {
         this.name = n;
         this.number = nb;
-        this.stock = bS;
+        this.buyingNumber = 1000;
+        this.buyingPrice = this.actualPrice * this.buyingNumber;
+        if (baseInStock) {
+            this.stock = this.buyingNumber;
+        } else {
+            this.stock = 0;
+        }
         this.priceRMSimulation = null;
         this.actualPrice = aP;
-        this.forHundredPrice = this.actualPrice * 100;
+        this.buyingPrice = this.actualPrice * this.buyingNumber;
         this.priceRange = [aP-ecart, aP+ecart];
         this.volatility = volacity;
         this.trend = trend;
@@ -150,7 +155,7 @@ class RawMaterial {
         paragraph.appendChild(stockSpanValue);
         paragraph.appendChild(document.createElement('br'));
 
-        const priceText = document.createTextNode('Prix de 100 unités : ');
+        const priceText = document.createTextNode(`Prix de ${this.buyingNumber} unités : `);
         const priceSpan = document.createElement('span');
         priceSpan.className = `rM${this.number}P`;
         priceSpan.textContent = '0.00';
@@ -161,7 +166,7 @@ class RawMaterial {
 
         const buyButton = document.createElement('button');
         buyButton.id = `rM${this.number}B`;
-        buyButton.textContent = 'Acheter 100 unités';
+        buyButton.textContent = `Acheter ${this.buyingNumber} unités`;
         paragraph.appendChild(buyButton);
 
         rowMaterialsDiv.appendChild(paragraph);
@@ -173,13 +178,12 @@ class RawMaterial {
         this.modifyTextByClassName(`rM${this.number}P`, 'price');
     }
     get buyRawMaterials() {
-        if (ind.money >= this.actualPrice) {
-            ind.money -= this.actualPrice;
-            this.stock += 100;
-            ind.money = Math.floor(ind.money * 100)/100;
+        if (ind.money >= this.buyingPrice) {
+            ind.money -= this.buyingPrice;
+            this.stock += this.buyingNumber;
             this.inflation;
             ind.modifyTextByClassName('mV', 'money');
-            this.modifyTextByClassName('acT', 'total');
+            this.modifyTextByClassName(`rM${this.number}S`, 'stock');
         }
     }
     get functionPriceRMSimulation() {
@@ -192,7 +196,7 @@ class RawMaterial {
         let tmp = Math.random() * (Math.min(max, this.priceRange[1]) - Math.max(min, this.priceRange[0]) + 1) + Math.max(min, this.priceRange[0]);
         this.actualPrice = truncateFloat(tmp, 0);
         this.priceEvolution.push(this.actualPrice);
-        this.forHundredPrice = truncateFloat(tmp * 100, 0);
+        this.forHundredPrice = truncateFloat(tmp * this.buyingNumber, 0);
     }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
@@ -206,7 +210,7 @@ class RawMaterial {
     }
 }
 class Product {
-    constructor(n, l, recipe) {
+    constructor(n, l, recipe, interest = 1.0) {
         this.name = n;
         this.letter = l;
         this.autoclicker = null;
@@ -223,6 +227,7 @@ class Product {
         this.priceEvolution = new Array;
         this.timeInterval = 2000;
         this.recipe = recipe;
+        this.interest = interest;
         this.v = true;
     }
     get initialisation() {
@@ -347,7 +352,7 @@ class Product {
         for (let el of this.recipe) {
             tmp += el[1] * el[0].actualPrice;
         }
-        this.actualPrice = truncateFloat(tmp * 1.2, 0);
+        this.actualPrice = truncateFloat(tmp * this.interest, 0);
     }
     get sellProduct() {
         if (this.sellNumber <= this.nbInventory) {
@@ -359,7 +364,6 @@ class Product {
             this.nbCirculation += this.nbInventory;
             this.nbInventory = 0;
         }
-        ind.money = Math.floor(ind.money * 100)/100;
         ind.modifyTextByClassName('mV', 'money');
         this.modifyTextByClassName(`p${this.letter}S`, 'stock');
         this.modifyTextByClassName(`p${this.letter}C`, 'circulation');
@@ -445,24 +449,24 @@ let gSC = gameStyle[choice];
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
 // Row materials
-let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 2, 100);
+let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 0, true);
 rM1.initialisation;
-let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 200, 60, 15, 0);
+let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 200, 60, 15, 2);
 rM2.initialisation;
 let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 500, 20, 5, -1);
 rM3.initialisation;
 // Product
 // Product A
-let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]]);
+let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]], 1.2);
 pA.initialisation;
 // Product B
-let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]]);
+let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]], 1.2);
 pB.initialisation;
 // Product C
-let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]]);
+let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]], 1.2);
 pC.initialisation;
 // Product D
-let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]]);
+let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 1.2);
 pD.initialisation;
 // Autoclicker
 let ac = new Autoclicker(2000, 100, 30, 2);
@@ -510,4 +514,4 @@ document.getElementById('rM3B').addEventListener('click', () => rM3.buyRawMateri
 rM3.priceRMSimulation = setInterval(() => rM3.functionPriceRMSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 // Autoclickers
 document.getElementById('acB').addEventListener('click', ac.autoclickerBuying);
-this.priceAcSimulation = setInterval(ac.functionPriceAcSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+ac.priceAcSimulation = setInterval(ac.functionPriceAcSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
