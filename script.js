@@ -86,8 +86,8 @@ class Autoclicker {
         this.modifyTextByClassName('acP', 'price');
     }
     get autoclickerBuying() {
-        if (ind.money >= ac.actualPrice) {
-            ind.money -= ac.actualPrice;
+        if (ind.money >= this.actualPrice) {
+            ind.money -= this.actualPrice;
             this.totalAutoclickers++;
             this.inflation;
             ind.modifyTextByClassName('mV', 'money');
@@ -95,8 +95,8 @@ class Autoclicker {
         }
     }
     get functionPriceAcSimulation() {
-        ac.changePrice;
-        ac.modifyTextByClassName('acP', 'price');
+        this.changePrice;
+        this.modifyTextByClassName('acP', 'price');
     }
     get changePrice() {
         let min = this.actualPrice - this.volatility + this.trend;
