@@ -30,11 +30,12 @@ class Industry {
     }
 }
 class Autoclicker {
-    constructor(aP, ecart, volacity, trend) {
+    constructor(aP, ecart, volacity, trend, iV) {
         this.name = 'Autoclicker';
         this.totalAutoclickers = 0;
         this.usingAutoclickers = 0;
         this.priceAcSimulation = null;
+        this.inflationValue = iV;
         this.basePrice = aP;
         this.actualPrice = aP;
         this.priceRange = [aP-ecart, aP+ecart];
@@ -92,6 +93,7 @@ class Autoclicker {
             this.inflation;
             ind.modifyTextByClassName('mV', 'money');
             this.modifyTextByClassName('acT', 'total');
+            this.modifyTextByClassName('acU', 'using');
         }
     }
     get functionPriceAcSimulation() {
@@ -106,9 +108,9 @@ class Autoclicker {
         this.priceEvolution.push(this.actualPrice);
     }
     get inflation() {
-        this.priceRange[0] = truncateFloat(this.basePrice * 1.1, 0);
-        this.priceRange = [aP-ecart, aP+ecart];
-        this.actualPrice = this.changePrice;
+        this.basePrice = truncateFloat(this.basePrice*this.inflationValue, 0);
+        this.actualPrice = this.basePrice;
+        this.priceRange = [this.basePrice-this.ecart, this.basePrice+this.ecart];
         this.modifyTextByClassName('acP', 'price');
     }
     modifyTextByClassName(nClass, wThis) {
@@ -198,7 +200,7 @@ class RawMaterial {
     get functionPriceRMSimulation() {
         this.changePrice;
         if (this.number === 1) {
-            priceCourbe(ctx, this.priceEvolution);
+            // priceCourbe(ctx, this.priceEvolution);
         }
         this.modifyTextByClassName(`rM${this.number}P`, 'price');
     }
@@ -381,7 +383,7 @@ class Product {
         this.modifyTextByClassName(`p${this.letter}C`, 'circulation');
     }
     get addAutoclickerInProduction() {
-        if (ac.totalAutoclickers - ac.usingAutoclickers > 0) {
+        if (ac.totalAutoclickers > ac.usingAutoclickers) {
             this.assignAutoclickers++;
             ac.usingAutoclickers++;
             this.timeInterval = (1.0 - (this.assignAutoclickers - 1) * 0.1) * 2000;
@@ -392,15 +394,15 @@ class Product {
         if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction, this.timeInterval);}
     }
     get liberateAutoclickerInProduction() {
-        if (pA.assignAutoclickers > 0) {
-            pA.assignAutoclickers--;
+        if (this.assignAutoclickers > 0) {
+            this.assignAutoclickers--;
             ac.usingAutoclickers--;
             ac.modifyTextByClassName()
-            pA.timeInterval = (1.0 - (pA.assignAutoclickers - 1) * 0.1) * 2000;
-            pA.modifyTextByClassName(`p${this.letter}A`, 'autoclickers');
+            this.timeInterval = (1.0 - (this.assignAutoclickers - 1) * 0.1) * 2000;
+            this.modifyTextByClassName(`p${this.letter}A`, 'autoclickers');
             ac.modifyTextByClassName('acU', 'using');
         }
-        if (pA.autoclicker !== null) {clearInterval(pA.autoclicker);}
+        if (this.autoclicker !== null) {clearInterval(this.autoclicker);}
         if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction, this.timeInterval);}
     }
     modifyTextByClassName(nClass, wThis) {
@@ -527,5 +529,5 @@ rM2.priceRMSimulation = setInterval(() => rM2.functionPriceRMSimulation, Math.fl
 document.getElementById('rM3B').addEventListener('click', () => rM3.buyRawMaterials);
 rM3.priceRMSimulation = setInterval(() => rM3.functionPriceRMSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 // Autoclickers
-document.getElementById('acB').addEventListener('click', ac.autoclickerBuying);
-ac.priceAcSimulation = setInterval(ac.functionPriceAcSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+document.getElementById('acB').addEventListener('click', () => ac.autoclickerBuying);
+ac.priceAcSimulation = setInterval(() => ac.functionPriceAcSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
