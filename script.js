@@ -3,6 +3,16 @@ function truncateFloat(nb, d) {
     const factor = Math.pow(10, d);
     return Math.trunc(nb * factor) / factor;
 }
+function priceCourbe(ctx, points) {
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(i*3, points[i]*3);
+    }
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+}
 // Class
 class Industry {
     constructor() {
@@ -78,10 +88,10 @@ class Autoclicker {
     get autoclickerBuying() {
         if (ind.money >= ac.actualPrice) {
             ind.money -= ac.actualPrice;
-            ac.totalAutoclickers++;
-            ac.inflation;
+            this.totalAutoclickers++;
+            this.inflation;
             ind.modifyTextByClassName('mV', 'money');
-            ac.modifyTextByClassName('acT', 'total');
+            this.modifyTextByClassName('acT', 'total');
         }
     }
     get functionPriceAcSimulation() {
@@ -181,13 +191,15 @@ class RawMaterial {
         if (ind.money >= this.buyingPrice) {
             ind.money -= this.buyingPrice;
             this.stock += this.buyingNumber;
-            this.inflation;
             ind.modifyTextByClassName('mV', 'money');
             this.modifyTextByClassName(`rM${this.number}S`, 'stock');
         }
     }
     get functionPriceRMSimulation() {
         this.changePrice;
+        if (this.number === 1) {
+            priceCourbe(ctx, this.priceEvolution);
+        }
         this.modifyTextByClassName(`rM${this.number}P`, 'price');
     }
     get changePrice() {
@@ -448,6 +460,8 @@ let gSC = gameStyle[choice];
 // Industry
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 // Row materials
 let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 0, true);
 rM1.initialisation;
