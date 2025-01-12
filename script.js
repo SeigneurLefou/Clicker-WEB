@@ -41,6 +41,7 @@ class Autoclicker {
         this.priceRange = [aP-ecart, aP+ecart];
         this.volatility = volacity;
         this.trend = trend;
+        this.ecart = ecart;
         this.priceEvolution = new Array;
     }
     get initialisation() {
@@ -94,6 +95,7 @@ class Autoclicker {
             ind.modifyTextByClassName('mV', 'money');
             this.modifyTextByClassName('acT', 'total');
             this.modifyTextByClassName('acU', 'using');
+            this.modifyTextByClassName('acP', 'price');
         }
     }
     get functionPriceAcSimulation() {
@@ -108,7 +110,8 @@ class Autoclicker {
         this.priceEvolution.push(this.actualPrice);
     }
     get inflation() {
-        this.basePrice = truncateFloat(this.basePrice*this.inflationValue, 0);
+        this.basePrice = truncateFloat(this.basePrice*this.inflationValue,0);
+        this.basePrice = this.basePrice;
         this.actualPrice = this.basePrice;
         this.priceRange = [this.basePrice-this.ecart, this.basePrice+this.ecart];
         this.modifyTextByClassName('acP', 'price');
@@ -314,6 +317,7 @@ class Product {
         sellInput.value = '10';
         sellInput.min = '0';
         sellDiv.appendChild(sellInput);
+        
         const sellParagraph = document.createElement('p');
         sellParagraph.innerHTML = `
             Prix : <span class='p${this.letter}P'>0.00</span> $<br>
@@ -352,8 +356,9 @@ class Product {
         }
     }
     get changeSellNumber() {
-        if (this.value != NaN) {
-            this.sellNumber = parseInt(this.value);
+        const input = document.getElementById(`p${this.letter}SI`);
+        if (input.value != NaN && input.value >= 0) {
+            this.sellNumber = parseInt(input.value);
             this.modifyTextByClassName(`p${this.letter}SN`, 'sellNumber');
         }
     }
@@ -391,19 +396,18 @@ class Product {
             ac.modifyTextByClassName('acU', 'using');
         }
         if (this.autoclicker !== null) {clearInterval(this.autoclicker);}
-        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction, this.timeInterval);}
+        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(() => this.clickProduction, this.timeInterval);}
     }
     get liberateAutoclickerInProduction() {
         if (this.assignAutoclickers > 0) {
             this.assignAutoclickers--;
             ac.usingAutoclickers--;
-            ac.modifyTextByClassName()
             this.timeInterval = (1.0 - (this.assignAutoclickers - 1) * 0.1) * 2000;
             this.modifyTextByClassName(`p${this.letter}A`, 'autoclickers');
             ac.modifyTextByClassName('acU', 'using');
         }
         if (this.autoclicker !== null) {clearInterval(this.autoclicker);}
-        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(this.clickProduction, this.timeInterval);}
+        if (this.assignAutoclickers > 0) {this.autoclicker = setInterval(() => this.clickProduction, this.timeInterval);}
     }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
@@ -473,19 +477,19 @@ let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 500, 20, 5, -1);
 rM3.initialisation;
 // Product
 // Product A
-let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]], 1.2);
+let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]], 2);
 pA.initialisation;
 // Product B
-let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]], 1.2);
+let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]], 2);
 pB.initialisation;
 // Product C
-let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]], 1.2);
+let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]], 2);
 pC.initialisation;
 // Product D
-let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 1.2);
+let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 2);
 pD.initialisation;
 // Autoclicker
-let ac = new Autoclicker(2000, 100, 30, 2);
+let ac = new Autoclicker(2000, 100, 30, 2, 1.5);
 ac.initialisation
 
 // Boucle de jeu
