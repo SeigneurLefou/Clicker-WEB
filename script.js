@@ -134,8 +134,8 @@ class RawMaterial {
         this.number = nb;
         this.buyingNumber = 1000;
         this.buyingPrice = this.actualPrice * this.buyingNumber;
-        if (baseInStock) {
-            this.stock = this.buyingNumber;
+        if (baseInStock[0]) {
+            this.stock = baseInStock[1];
         } else {
             this.stock = 0;
         }
@@ -469,7 +469,7 @@ ind.modifyTextByClassName('mV', 'money');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 // Row materials
-let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 0, true);
+let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 0, [true, 3000]);
 rM1.initialisation;
 let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 200, 60, 15, 2);
 rM2.initialisation;
