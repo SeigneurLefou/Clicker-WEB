@@ -233,7 +233,7 @@ class Product {
         this.autoclicker = null;
         this.priceSimulation = null;
         this.nbTotal = 0;
-        this.nbInventory = 0;
+        this.stock = 0;
         this.nbCirculation = 0;
         this.sellNumber = 10;
         this.assignAutoclickers = 0;
@@ -338,14 +338,14 @@ class Product {
         this.modifyTextByClassName(`p${this.letter}R`, 'recipe');
     }
     get clickProduction() {
-        this.v = true;
+        let canProduct = true;
         for (let i = 0; i < this.recipe.length; i++) {
             if (this.recipe[i][0].stock < this.recipe[i][1]) {
-                this.v = false;
+                canProduct = false;
             }
         } 
-        if (this.v) {   
-            this.nbInventory++;
+        if (canProduct) {   
+            this.stock++;
             this.nbTotal++;
             for (let i = 0; i < this.recipe.length; i++) {
                 this.recipe[i][0].stock -= this.recipe[i][1];
@@ -374,14 +374,14 @@ class Product {
         this.actualPrice = truncateFloat(tmp * this.interest, 0);
     }
     get sellProduct() {
-        if (this.sellNumber <= this.nbInventory) {
+        if (this.sellNumber <= this.stock) {
             ind.money += this.sellNumber * this.actualPrice
             this.nbCirculation += this.sellNumber;
-            this.nbInventory -= this.sellNumber;
-        } else if (this.sellNumber > this.nbInventory) {
-            ind.money += this.nbInventory * this.actualPrice;
-            this.nbCirculation += this.nbInventory;
-            this.nbInventory = 0;
+            this.stock -= this.sellNumber;
+        } else if (this.sellNumber > this.stock) {
+            ind.money += this.stock * this.actualPrice;
+            this.nbCirculation += this.stock;
+            this.stock = 0;
         }
         ind.modifyTextByClassName('mV', 'money');
         this.modifyTextByClassName(`p${this.letter}S`, 'stock');
@@ -415,7 +415,7 @@ class Product {
         switch (wThis) {
             case 'name': value = this.name; break;
             case 'total': value = this.nbTotal; break;
-            case 'stock': value = this.nbInventory; break;
+            case 'stock': value = this.stock; break;
             case 'circulation': value = this.nbCirculation; break;
             case 'price': value = this.actualPrice; break;
             case 'autoclickers': value = this.assignAutoclickers; break;
