@@ -477,16 +477,16 @@ let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 500, 20, 5, -1);
 rM3.initialisation;
 // Product
 // Product A
-let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]], 3);
+let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]], 1.2);
 pA.initialisation;
 // Product B
-let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]], 3);
+let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]], 1.2);
 pB.initialisation;
 // Product C
-let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]], 3);
+let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]], 1.2);
 pC.initialisation;
 // Product D
-let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 3);
+let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 1.2);
 pD.initialisation;
 // Autoclicker
 let ac = new Autoclicker(5000, 100, 30, 2, 1.5);
