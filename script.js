@@ -234,7 +234,6 @@ class Product {
         this.priceSimulation = null;
         this.nbTotal = 0;
         this.stock = 0;
-        this.nbCirculation = 0;
         this.sellNumber = 10;
         this.assignAutoclickers = 0;
         this.actualPrice = 0;
@@ -322,7 +321,6 @@ class Product {
         sellParagraph.innerHTML = `
             Prix : <span class='p${this.letter}P'>0.00</span> $<br>
             <button id='p${this.letter}SN'><span class='p${this.letter}SN'>0</span> unités</button><br>
-            Unités en circulation : <span class='p${this.letter}C'>0</span>
         `;
         sellDiv.appendChild(sellParagraph);
 
@@ -332,7 +330,6 @@ class Product {
         this.modifyTextByClassName(`p${this.letter}N`, 'name');
         this.modifyTextByClassName(`p${this.letter}T`, 'total');
         this.modifyTextByClassName(`p${this.letter}S`, 'stock');
-        this.modifyTextByClassName(`p${this.letter}C`, 'circulation');
         this.modifyTextByClassName(`p${this.letter}SN`, 'sellNumber');
         this.modifyTextByClassName(`p${this.letter}P`, 'price');
         this.modifyTextByClassName(`p${this.letter}R`, 'recipe');
@@ -349,7 +346,7 @@ class Product {
             this.nbTotal++;
             for (let i = 0; i < this.recipe.length; i++) {
                 this.recipe[i][0].stock -= this.recipe[i][1];
-                this.recipe[i][0].modifyTextByClassName(`rM${this.recipe[i][0].number}S`, 'stock');
+                typeof this.recipe[i][0] == Product ? this.recipe[i][0].modifyTextByClassName(`rM${this.recipe[i][0].number}S`, 'stock') : this.recipe[i][0].modifyTextByClassName(`p${this.recipe[i][0].letter}S`, 'stock');
             } 
             this.modifyTextByClassName(`p${this.letter}S`, 'stock');
             this.modifyTextByClassName(`p${this.letter}T`, 'total');
@@ -385,7 +382,6 @@ class Product {
         }
         ind.modifyTextByClassName('mV', 'money');
         this.modifyTextByClassName(`p${this.letter}S`, 'stock');
-        this.modifyTextByClassName(`p${this.letter}C`, 'circulation');
     }
     get addAutoclickerInProduction() {
         if (ac.totalAutoclickers > ac.usingAutoclickers) {
@@ -416,7 +412,6 @@ class Product {
             case 'name': value = this.name; break;
             case 'total': value = this.nbTotal; break;
             case 'stock': value = this.stock; break;
-            case 'circulation': value = this.nbCirculation; break;
             case 'price': value = this.actualPrice; break;
             case 'autoclickers': value = this.assignAutoclickers; break;
             case 'sellNumber': value = this.sellNumber; break;
@@ -444,7 +439,9 @@ let gameStyle = {
             'P1': ['Produit 1'],
             'P2': ['Produit 2'],
             'P3': ['Produit 3'],
-            'P4': ['Produit 4']
+            'P4': ['Produit 4'],
+            'P5': ['Produit 5'],
+            'P6': ['Produit 6']
         }
     ],
     'Pokemon': [
@@ -455,14 +452,19 @@ let gameStyle = {
         }, {
             'P1': ['Pokeball'],
             'P2': ['Potion'],
-            'P3': [''],
-            'P4': ['']
+            'P3': ['3'],
+            'P4': ['4'],
+            'P5': ['5'],
+            'P6': ['6']
         }
     ]
-}
-let choice = 'Debug'
-let gSC = gameStyle[choice];
-// gSC = prompt
+}/*
+let message = "Quel style de jeu choisissez-vous ?"
+const keys = Object.keys(obj);
+for (const key of keys) {message += `\n\t${key}`;}
+let choice = prompt(message);
+if (choice !== null) {let gSC = gameStyle[choice];}*/
+let gSC = gameStyle["Debug"];
 // Industry
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
@@ -475,25 +477,32 @@ let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 200, 60, 15, 2);
 rM2.initialisation;
 let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 500, 20, 5, -1);
 rM3.initialisation;
-// Product
-// Product A
+// Base Product
+// Base Product A
 let pA = new Product(`${gSC[1]['P1']}`, 'A', [[rM1, 2]], 1.2);
 pA.initialisation;
-// Product B
+// Base Product B
 let pB = new Product(`${gSC[1]['P2']}`, 'B', [[rM1, 2], [rM2,1]], 1.2);
 pB.initialisation;
-// Product C
+// Base Product C
 let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]], 1.2);
 pC.initialisation;
-// Product D
+// Base Product D
 let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 1.2);
 pD.initialisation;
+// Advance Product
+// Product E
+let pE = new Product(`${gSC[1]['P5']}`, 'E', [[rM1, 2], [pA, 2]], 1.2);
+pE.initialisation;
+// Product F
+let pF = new Product(`${gSC[1]['P6']}`, 'F', [[rM1, 2], [pA, 2]], 1.2);
+pF.initialisation;
 // Autoclicker
 let ac = new Autoclicker(5000, 100, 30, 2, 1.5);
 ac.initialisation
 
 // Boucle de jeu
-// Product
+// Base Product
 // Product A
 document.getElementById('pAPB').addEventListener('click', () => pA.clickProduction);
 document.getElementById('pASI').addEventListener('input', () => pA.changeSellNumber);
@@ -522,6 +531,21 @@ pD.priceSimulation = setInterval(() => pD.functionPriceSimulation, Math.floor(Ma
 document.getElementById('pDSN').addEventListener('click', () => pD.sellProduct);
 document.getElementById('pDAAc').addEventListener('click', () => pD.addAutoclickerInProduction);
 document.getElementById('pDLAc').addEventListener('click', () => pC.liberateAutoclickerInProduction);
+// Advance Product
+// Product E
+document.getElementById('pEPB').addEventListener('click', () => pE.clickProduction);
+document.getElementById('pESI').addEventListener('input', () => pE.changeSellNumber);
+pE.priceSimulation = setInterval(() => pE.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+document.getElementById('pESN').addEventListener('click', () => pE.sellProduct);
+document.getElementById('pEAAc').addEventListener('click', () => pE.addAutoclickerInProduction);
+document.getElementById('pELAc').addEventListener('click', () => pE.liberateAutoclickerInProduction);
+// Product F
+document.getElementById('pFPB').addEventListener('click', () => pF.clickProduction);
+document.getElementById('pFSI').addEventListener('input', () => pF.changeSellNumber);
+pF.priceSimulation = setInterval(() => pF.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
+document.getElementById('pFSN').addEventListener('click', () => pF.sellProduct);
+document.getElementById('pFAAc').addEventListener('click', () => pF.addAutoclickerInProduction);
+document.getElementById('pFLAc').addEventListener('click', () => pF.liberateAutoclickerInProduction);
 // Row Materials
 // Raw Materials 1
 document.getElementById('rM1B').addEventListener('click', () => rM1.buyRawMaterials);
