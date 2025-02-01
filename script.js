@@ -492,10 +492,10 @@ let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 1.2
 pD.initialisation;
 // Advance Product
 // Product E
-let pE = new Product(`${gSC[1]['P5']}`, 'E', [[rM1, 2], [pA, 2]], 1.2);
+let pE = new Product(`${gSC[1]['P5']}`, 'E', [[rM3, 2], [pA, 2]], 1.2);
 pE.initialisation;
 // Product F
-let pF = new Product(`${gSC[1]['P6']}`, 'F', [[rM1, 2], [pA, 2]], 1.2);
+let pF = new Product(`${gSC[1]['P6']}`, 'F', [[rM3, 1], [pC, 2]], 1.2);
 pF.initialisation;
 // Autoclicker
 let ac = new Autoclicker(5000, 100, 30, 2, 1.5);
