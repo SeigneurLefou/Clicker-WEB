@@ -369,6 +369,7 @@ class Product {
             tmp += el[1] * el[0].actualPrice;
         }
         this.actualPrice = truncateFloat(tmp * this.interest, 0);
+        this.priceEvolution = this.actualPrice;
     }
     get sellProduct() {
         if (this.sellNumber <= this.stock) {
@@ -427,9 +428,28 @@ class Product {
         elements.forEach(element => element.innerText = value);
     }
 }
+class StyleClass {
+    constructor() {
+        this.listStyles = [];
+        this.dicoStyles = {}
+    }
+    addNewStyle(name, rM, p) {
+        this.listStyles.push(name);
+        this.dicoStyles[name] = [{},{}];
+        for (let i = 0; i < rM.length; i++) {
+            this.dicoStyles[name][0][`RM${i+1}`] = rM[i];
+        }
+        for (let j = 0; j < p.length; j++) {
+            this.dicoStyles[name][1][`P${j+1}`] = p[j];
+        }
+    }
+    giveStyle(name) {
+        return this.dicoStyles[name];
+    }
+}
 // Initialisation
 // Game Style
-let gameStyle = {
+/*let gameStyle = {
     'Debug': [
         {
             'RM1': ['Matière première 1'],
@@ -458,13 +478,15 @@ let gameStyle = {
             'P6': ['6']
         }
     ]
-}/*
+}*//*
 let message = "Quel style de jeu choisissez-vous ?"
 const keys = Object.keys(obj);
 for (const key of keys) {message += `\n\t${key}`;}
 let choice = prompt(message);
 if (choice !== null) {let gSC = gameStyle[choice];}*/
-let gSC = gameStyle["Debug"];
+let gameStyle = new StyleClass;
+gameStyle.addNewStyle("Debug", ['Matière première 1', 'Matière première 2', 'Matière première 3'], ['Produit 1', 'Produit 2', 'Produit 3', 'Produit 4', 'Produit 5', 'Produit 6']);
+let gSC = gameStyle.giveStyle("Debug");
 // Industry
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
@@ -488,7 +510,7 @@ pB.initialisation;
 let pC = new Product(`${gSC[1]['P3']}`, 'C', [[rM2, 4]], 1.2);
 pC.initialisation;
 // Base Product D
-let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 1], [rM3, 3]], 1.2);
+let pD = new Product(`${gSC[1]['P4']}`, 'D', [[rM1, 2], [rM2, 2], [rM3, 2]], 1.2);
 pD.initialisation;
 // Advance Product
 // Product E
