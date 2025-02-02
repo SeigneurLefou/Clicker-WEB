@@ -449,44 +449,10 @@ class StyleClass {
 }
 // Initialisation
 // Game Style
-/*let gameStyle = {
-    'Debug': [
-        {
-            'RM1': ['Matière première 1'],
-            'RM2': ['Matière première 2'],
-            'RM3': ['Matière première 3']
-        }, {
-            'P1': ['Produit 1'],
-            'P2': ['Produit 2'],
-            'P3': ['Produit 3'],
-            'P4': ['Produit 4'],
-            'P5': ['Produit 5'],
-            'P6': ['Produit 6']
-        }
-    ],
-    'Pokemon': [
-        {
-            'RM1': ['Metal'],
-            'RM2': ['Plastique'],
-            'RM3': ['Verre']
-        }, {
-            'P1': ['Pokeball'],
-            'P2': ['Potion'],
-            'P3': ['3'],
-            'P4': ['4'],
-            'P5': ['5'],
-            'P6': ['6']
-        }
-    ]
-}*//*
-let message = "Quel style de jeu choisissez-vous ?"
-const keys = Object.keys(obj);
-for (const key of keys) {message += `\n\t${key}`;}
-let choice = prompt(message);
-if (choice !== null) {let gSC = gameStyle[choice];}*/
 let gameStyle = new StyleClass;
 gameStyle.addNewStyle("Debug", ['Matière première 1', 'Matière première 2', 'Matière première 3'], ['Produit 1', 'Produit 2', 'Produit 3', 'Produit 4', 'Produit 5', 'Produit 6']);
-let gSC = gameStyle.giveStyle("Debug");
+gameStyle.addNewStyle("Jouet", ['Bois', 'Plastique', 'Acier'], ['Bébé marteau', 'Petite guitare', 'Petit soldat', 'Grand train', 'Puzzle', 'Robot']);
+let gSC = gameStyle.giveStyle("Jouet");
 // Industry
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
@@ -522,7 +488,6 @@ pF.initialisation;
 // Autoclicker
 let ac = new Autoclicker(5000, 100, 30, 2, 1.5);
 ac.initialisation
-
 // Boucle de jeu
 // Base Product
 // Product A
