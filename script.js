@@ -150,6 +150,7 @@ class RawMaterial {
     get initialisation() {
         const rowMaterialsDiv = document.createElement('div');
         rowMaterialsDiv.id = `rowMaterials${this.number}`;
+        rowMaterialsDiv.className = 'ressource';
 
         const titleH3 = document.createElement('h3');
         titleH3.innerHTML = `<br><span class='rM${this.number}N'>Row material</span> :`;
@@ -157,20 +158,16 @@ class RawMaterial {
 
         const paragraph = document.createElement('p');
 
-        const stockText = document.createTextNode('Stock de ');
-        const stockSpanName = document.createElement('span');
-        stockSpanName.className = `rM${this.number}N`;
-        stockSpanName.textContent = 'Row material';
+        const stockText = document.createTextNode('Stock');
         const stockSpanValue = document.createElement('span');
         stockSpanValue.className = `rM${this.number}S`;
         stockSpanValue.textContent = '0';
         paragraph.appendChild(stockText);
-        paragraph.appendChild(stockSpanName);
         paragraph.appendChild(document.createTextNode(' : '));
         paragraph.appendChild(stockSpanValue);
         paragraph.appendChild(document.createElement('br'));
 
-        const priceText = document.createTextNode(`Prix de ${this.buyingNumber} unités : `);
+        const priceText = document.createTextNode(`Prix : `);
         const priceSpan = document.createElement('span');
         priceSpan.className = `rM${this.number}P`;
         priceSpan.textContent = '0.00';
@@ -181,7 +178,7 @@ class RawMaterial {
 
         const buyButton = document.createElement('button');
         buyButton.id = `rM${this.number}B`;
-        buyButton.textContent = `Acheter ${this.buyingNumber} unités`;
+        buyButton.textContent = `Acheter ${this.buyingNumber}`;
         paragraph.appendChild(buyButton);
 
         rowMaterialsDiv.appendChild(paragraph);
@@ -249,19 +246,21 @@ class Product {
     get initialisation() {
         const productDiv = document.createElement('div');
         productDiv.id = `product${this.letter}`;
+        productDiv.className = 'product';
+
         const titleH1 = document.createElement('h1');
         titleH1.className = `p${this.letter}N`;
         titleH1.textContent = 'Production';
         productDiv.appendChild(titleH1);
 
-        productDiv.appendChild(document.createElement('hr'));
+//        productDiv.appendChild(document.createElement('hr'));
 
         const stockH2 = document.createElement('h2');
-        stockH2.innerHTML = `Unité en stock : <span class='p${this.letter}S'>0</span>`;
+        stockH2.innerHTML = `Stock : <span class='p${this.letter}S'>0</span>`;
         productDiv.appendChild(stockH2);
 
         const producedH3 = document.createElement('h3');
-        producedH3.innerHTML = `Unité produite : <span class='p${this.letter}T'>0</span>`;
+        producedH3.innerHTML = `Total : <span class='p${this.letter}T'>0</span>`;
         productDiv.appendChild(producedH3);
 
         const paragraph = document.createElement('p');
@@ -456,8 +455,6 @@ let gSC = gameStyle.giveStyle("Jouet");
 // Industry
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
 // Row materials
 let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 0, [true, 3000]);
 rM1.initialisation;
