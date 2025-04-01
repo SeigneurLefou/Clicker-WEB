@@ -257,50 +257,58 @@ class Product {
 
         const stockH2 = document.createElement('h2');
         stockH2.innerHTML = `Stock : <span class='p${this.letter}S'>0</span>`;
+        stockH2.className = 'stock';
         productDiv.appendChild(stockH2);
-
-        const producedH3 = document.createElement('h3');
-        producedH3.innerHTML = `Total : <span class='p${this.letter}T'>0</span>`;
-        productDiv.appendChild(producedH3);
-
-        const paragraph = document.createElement('p');
 
         const produceButton = document.createElement('button');
         produceButton.id = `p${this.letter}PB`;
+        produceButton.className = 'produce';
         produceButton.textContent = 'Produire';
-        paragraph.appendChild(produceButton);
-        paragraph.appendChild(document.createElement('br'));
+        productDiv.appendChild(produceButton);
+
+        const producedH3 = document.createElement('h3');
+        producedH3.innerHTML = `Total : <span class='p${this.letter}T'>0</span>`;
+        producedH3.className = 'total';
+        productDiv.appendChild(producedH3);
+
+        const paragraphRecipe = document.createElement('p');
+        paragraphRecipe.className = 'recipe';
 
         const recipeText = document.createTextNode('Recette : ');
-        paragraph.appendChild(recipeText);
+        paragraphRecipe.appendChild(recipeText);
 
-        const recipeSpan = document.createElement('span');
+        const recipeSpan = document.createElement('p');
         recipeSpan.className = `p${this.letter}R`;
-        paragraph.appendChild(recipeSpan);
-        paragraph.appendChild(document.createElement('br'));
+        paragraphRecipe.appendChild(recipeSpan);
 
+        productDiv.appendChild(paragraphRecipe);
+
+        const hrElement = document.createElement('hr');
+        productDiv.appendChild(hrElement);
+
+        const releaseButton = document.createElement('button');
+        releaseButton.className = 'liberate';
+        releaseButton.id = `p${this.letter}LAc`;
+        releaseButton.textContent = '-';
+        productDiv.appendChild(releaseButton);
+
+        const paragraphAutoclicker = document.createElement('p');
+        paragraphAutoclicker.className = 'autoclicker';
         const autoClickersText = document.createTextNode('Autoclickers assigné : ');
-        paragraph.appendChild(autoClickersText);
+        paragraphAutoclicker.appendChild(autoClickersText);
 
         const autoClickersSpan = document.createElement('span');
         autoClickersSpan.className = `p${this.letter}A`;
         autoClickersSpan.textContent = '0';
-        paragraph.appendChild(autoClickersSpan);
-        paragraph.appendChild(document.createElement('br'));
+        paragraphAutoclicker.appendChild(autoClickersSpan);
+
+        productDiv.appendChild(paragraphAutoclicker);
 
         const assignButton = document.createElement('button');
+        assignButton.className = 'assign';
         assignButton.id = `p${this.letter}AAc`;
-        assignButton.textContent = 'Assigner un autoclickers';
-        paragraph.appendChild(assignButton);
-        paragraph.appendChild(document.createElement('br'));
-
-        const releaseButton = document.createElement('button');
-        releaseButton.id = `p${this.letter}LAc`;
-        releaseButton.textContent = 'Libérer un autoclickers';
-        paragraph.appendChild(releaseButton);
-        paragraph.appendChild(document.createElement('br'));
-
-        productDiv.appendChild(paragraph);
+        assignButton.textContent = '+';
+        productDiv.appendChild(assignButton);
 
         const sellHeader = document.createElement('h4');
         sellHeader.innerHTML = '<br>Vente :';
@@ -319,7 +327,7 @@ class Product {
         const sellParagraph = document.createElement('p');
         sellParagraph.innerHTML = `
             Prix : <span class='p${this.letter}P'>0.00</span> $<br>
-            <button id='p${this.letter}SN'><span class='p${this.letter}SN'>0</span> unités</button><br>
+            <button id='p${this.letter}SN'><span class='p${this.letter}SN'>0</span></button><br>
         `;
         sellDiv.appendChild(sellParagraph);
 
