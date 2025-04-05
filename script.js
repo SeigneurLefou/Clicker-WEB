@@ -312,27 +312,38 @@ class Product {
 
         const sellHeader = document.createElement('h4');
         sellHeader.innerHTML = '<br>Vente :';
+        sellHeader.className = 'sell';
         productDiv.appendChild(sellHeader);
 
-        const sellDiv = document.createElement('div');
-        sellDiv.id = `sell${this.letter}`;
+        const paragraphPrice = document.createElement('p');
+        paragraphPrice.className = 'price';
+        const priceText = document.createTextNode(`Prix : `);
+        const priceSpan = document.createElement('span');
+        priceSpan.className = `p${this.letter}P`;
+        priceSpan.textContent = '0.00';
+        paragraphPrice.appendChild(priceText);
+        paragraphPrice.appendChild(priceSpan);
+        paragraphPrice.appendChild(document.createTextNode(' $'));
+        productDiv.appendChild(paragraphPrice);
 
         const decreaseSellValueButton = document.createElement('button');
         decreaseSellValueButton.id = `p${this.letter}SD`;
+        decreaseSellValueButton.className = 'decrease';
         decreaseSellValueButton.textContent = '-';
-        sellDiv.appendChild(decreaseSellValueButton);
+        productDiv.appendChild(decreaseSellValueButton);
 
         const sellButton = document.createElement('button');
         sellButton.id = `p${this.letter}SB`;
-        decreaseSellValueButton.innerHTML = `Vendre <span class='p${this.letter}SN'>1</span>`;
-        sellDiv.appendChild(sellButton);
+        sellButton.className = 'sellButton';
+        sellButton.innerHTML = `Vendre <span class='p${this.letter}SN'>1</span>`;
+        productDiv.appendChild(sellButton);
 
         const increaseSellValueButton = document.createElement('button');
         increaseSellValueButton.id = `p${this.letter}SI`;
-        decreaseSellValueButton.textContent = '+';
-        sellDiv.appendChild(increaseSellValueButton);
+        increaseSellValueButton.className = 'increase';
+        increaseSellValueButton.textContent = '+';
+        productDiv.appendChild(increaseSellValueButton);
 
-        productDiv.appendChild(sellDiv);
         document.getElementById('production').appendChild(productDiv);
 
         this.modifyTextByClassName(`p${this.letter}N`, 'name');
@@ -360,26 +371,21 @@ class Product {
             this.modifyTextByClassName(`p${this.letter}T`, 'total');
         }
     }
-    get changeSellNumber() {
-        const input = document.getElementById(`p${this.letter}SI`);
-        if (input.value != NaN && input.value >= 0) {
-            this.sellNumber = parseInt(input.value);
-            this.modifyTextByClassName(`p${this.letter}SN`, 'sellNumber');
-        }
-    }
     get decreaseSellNumber() {
-        if (this.sellNumber.toString()[0] == "5") {
-            parseInt(this.sellNumber / 5)
-        } else if (this.sellNumber !== 1) {
-            parseInt(this.sellNumber / 2)
+        console.log(this.sellNumber.toString());
+        if (this.sellNumber.toString()[0] === "5") {
+            this.sellNumber = this.sellNumber / 5;
+        } else {
+            this.sellNumber = Math.max(1, this.sellNumber / 2);
         }
         this.modifyTextByClassName(`p${this.letter}SN`, 'sellNumber');
     }
     get increaseSellNumber() {
-        if (this.sellNumber.toString()[0] == "5") {
-            this.sellNumber * 2
+        console.log(this.sellNumber.toString());
+        if (this.sellNumber.toString()[0] === "5") {
+            this.sellNumber *= 2;
         } else {
-            this.sellNumber * 5
+            this.sellNumber *= 5;
         }
         this.modifyTextByClassName(`p${this.letter}SN`, 'sellNumber');
     }
@@ -508,38 +514,38 @@ pE.initialisation;
 let pF = new Product(`${gSC[1]['P6']}`, 'F', [[rM3, 1], [pC, 2]], 1.2);
 pF.initialisation;
 // Autoclicker
-let ac = new Autoclicker(5000, 100, 30, 2, 1.5);
+let ac = new Autoclicker(5000, 100, 30, 2, 1.2);
 ac.initialisation
 // Boucle de jeu
 // Base Product
 // Product A
 document.getElementById('pAPB').addEventListener('click', () => pA.clickProduction);
-document.getElementById('pFSD').addEventListener('input', () => pA.decreaseSellNumber);
-document.getElementById('pFSI').addEventListener('input', () => pA.increaseSellNumber);
+document.getElementById('pASD').addEventListener('click', () => pA.decreaseSellNumber);
+document.getElementById('pASI').addEventListener('click', () => pA.increaseSellNumber);
 pA.priceSimulation = setInterval(() => pA.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 document.getElementById('pASB').addEventListener('click', () => pA.sellProduct);
 document.getElementById('pAAAc').addEventListener('click', () => pA.addAutoclickerInProduction);
 document.getElementById('pALAc').addEventListener('click', () => pA.liberateAutoclickerInProduction);
 // Product B
 document.getElementById('pBPB').addEventListener('click', () => pB.clickProduction);
-document.getElementById('pFSD').addEventListener('input', () => pB.decreaseSellNumber);
-document.getElementById('pFSI').addEventListener('input', () => pB.increaseSellNumber);
+document.getElementById('pBSD').addEventListener('click', () => pB.decreaseSellNumber);
+document.getElementById('pBSI').addEventListener('click', () => pB.increaseSellNumber);
 pB.priceSimulation = setInterval(() => pB.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 document.getElementById('pBSB').addEventListener('click', () => pB.sellProduct);
 document.getElementById('pBAAc').addEventListener('click', () => pB.addAutoclickerInProduction);
 document.getElementById('pBLAc').addEventListener('click', () => pB.liberateAutoclickerInProduction);
 // Product C
 document.getElementById('pCPB').addEventListener('click', () => pC.clickProduction);
-document.getElementById('pFSD').addEventListener('input', () => pC.decreaseSellNumber);
-document.getElementById('pFSI').addEventListener('input', () => pC.increaseSellNumber);
+document.getElementById('pCSD').addEventListener('click', () => pC.decreaseSellNumber);
+document.getElementById('pCSI').addEventListener('click', () => pC.increaseSellNumber);
 pC.priceSimulation = setInterval(() => pC.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 document.getElementById('pASB').addEventListener('click', () => pC.sellProduct);
 document.getElementById('pCAAc').addEventListener('click', () => pC.addAutoclickerInProduction);
 document.getElementById('pCLAc').addEventListener('click', () => pC.liberateAutoclickerInProduction);
 // Product D
 document.getElementById('pDPB').addEventListener('click', () => pD.clickProduction);
-document.getElementById('pFSD').addEventListener('input', () => pD.decreaseSellNumber);
-document.getElementById('pFSI').addEventListener('input', () => pD.increaseSellNumber);
+document.getElementById('pDSD').addEventListener('click', () => pD.decreaseSellNumber);
+document.getElementById('pDSI').addEventListener('click', () => pD.increaseSellNumber);
 pD.priceSimulation = setInterval(() => pD.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 document.getElementById('pDSB').addEventListener('click', () => pD.sellProduct);
 document.getElementById('pDAAc').addEventListener('click', () => pD.addAutoclickerInProduction);
@@ -547,16 +553,16 @@ document.getElementById('pDLAc').addEventListener('click', () => pC.liberateAuto
 // Advance Product
 // Product E
 document.getElementById('pEPB').addEventListener('click', () => pE.clickProduction);
-document.getElementById('pFSD').addEventListener('input', () => pE.decreaseSellNumber);
-document.getElementById('pFSI').addEventListener('input', () => pE.increaseSellNumber);
+document.getElementById('pESD').addEventListener('click', () => pE.decreaseSellNumber);
+document.getElementById('pESI').addEventListener('click', () => pE.increaseSellNumber);
 pE.priceSimulation = setInterval(() => pE.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 document.getElementById('pESB').addEventListener('click', () => pE.sellProduct);
 document.getElementById('pEAAc').addEventListener('click', () => pE.addAutoclickerInProduction);
 document.getElementById('pELAc').addEventListener('click', () => pE.liberateAutoclickerInProduction);
 // Product F
 document.getElementById('pFPB').addEventListener('click', () => pF.clickProduction);
-document.getElementById('pFSD').addEventListener('input', () => pF.decreaseSellNumber);
-document.getElementById('pFSI').addEventListener('input', () => pF.increaseSellNumber);
+document.getElementById('pFSD').addEventListener('click', () => pF.decreaseSellNumber);
+document.getElementById('pFSI').addEventListener('click', () => pF.increaseSellNumber);
 pF.priceSimulation = setInterval(() => pF.functionPriceSimulation, Math.floor(Math.random()*(ind.maxTimeInterval-ind.minTimeInterval)+ind.minTimeInterval));
 document.getElementById('pFSB').addEventListener('click', () => pF.sellProduct);
 document.getElementById('pFAAc').addEventListener('click', () => pF.addAutoclickerInProduction);

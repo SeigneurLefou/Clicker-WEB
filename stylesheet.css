@@ -91,6 +91,36 @@ div.product button.assign {
     grid-column: 3;
     font-size: 40px;
 }
+div.product h4.sell {
+    grid-row: 6;
+    grid-column: 1/4;
+}
+div.product p.price {
+    grid-row: 7;
+    grid-column: 1/4;
+}
+div.product button.decrease {
+    height: 90px;
+    width: 90px;
+    justify-self: center;
+    align-self: center;
+    grid-row: 8;
+    grid-column: 1;
+    font-size: 40px;
+}
+div.product button.sellButton {
+    grid-row: 8;
+    grid-column: 2;
+}
+div.product button.increase {
+    height: 90px;
+    width: 90px;
+    justify-self: center;
+    align-self: center;
+    grid-row: 8;
+    grid-column: 3;
+    font-size: 40px;
+}
 /* Ressource */
 #ressource {
     display: grid;
