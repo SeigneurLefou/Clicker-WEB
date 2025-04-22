@@ -129,11 +129,11 @@ class Autoclicker {
     }
 }
 class RawMaterial {
-    constructor(n, nb, aP, ecart, volacity, trend, baseInStock = false) {
+    constructor(n, nb, aP, ecart, volacity, trend, baseInStock = [false]) {
         this.name = n;
         this.number = nb;
         this.buyingNumber = 1000;
-        this.buyingPrice = this.actualPrice * this.buyingNumber;
+        this.buyingPrice = this.actualPrice * 100;
         if (baseInStock[0]) {
             this.stock = baseInStock[1];
         } else {
@@ -141,7 +141,6 @@ class RawMaterial {
         }
         this.priceRMSimulation = null;
         this.actualPrice = aP;
-        this.buyingPrice = this.actualPrice * this.buyingNumber;
         this.priceRange = [aP-ecart, aP+ecart];
         this.volatility = volacity;
         this.trend = trend;
@@ -210,7 +209,7 @@ class RawMaterial {
         let tmp = Math.random() * (Math.min(max, this.priceRange[1]) - Math.max(min, this.priceRange[0]) + 1) + Math.max(min, this.priceRange[0]);
         this.actualPrice = truncateFloat(tmp, 0);
         this.priceEvolution.push(this.actualPrice);
-        this.forHundredPrice = truncateFloat(tmp * this.buyingNumber, 0);
+        this.forHundredPrice = truncateFloat(tmp * 100, 0);
     }
     modifyTextByClassName(nClass, wThis) {
         let elements = document.querySelectorAll(`.${nClass}`);
@@ -224,7 +223,7 @@ class RawMaterial {
     }
 }
 class Product {
-    constructor(n, l, recipe, interest = 1.0) {
+    constructor(n, l, recipe, interest = 1.0, pC = 1.0) {
         this.name = n;
         this.letter = l;
         this.autoclicker = null;
@@ -235,11 +234,17 @@ class Product {
         this.assignAutoclickers = 0;
         this.actualPrice = 0;
         for (let el of recipe) {
-            this.actualPrice += el[1] * el[0].actualPrice;
+            if (el[0] instanceof RawMaterial) {
+                this.actualPrice += el[1] * truncateFloat(el[0].actualPrice/10, 0);
+            } else {
+                this.actualPrice += el[1] * el[0].actualPrice;
+            }
         }
+        this.actualPrice *= pC * interest;
         this.priceEvolution = new Array;
         this.timeInterval = 2000;
         this.recipe = recipe;
+        this.productionCost = pC;
         this.interest = interest;
         this.v = true;
     }
@@ -396,9 +401,13 @@ class Product {
     get changePrice() {
         let tmp = 0;
         for (let el of this.recipe) {
-            tmp += el[1] * el[0].actualPrice;
+            if (el[0] instanceof RawMaterial) {
+                tmp += el[1] * truncateFloat(el[0].actualPrice/10, 0);
+            } else {
+                tmp += el[1] * el[0].actualPrice;
+            }
         }
-        this.actualPrice = truncateFloat(tmp * this.interest, 0);
+        this.actualPrice = truncateFloat(tmp * this.productionCost * this.interest, 0);
         this.priceEvolution = this.actualPrice;
     }
     get sellProduct() {
@@ -487,11 +496,11 @@ let gSC = gameStyle.giveStyle("Jouet");
 let ind = new Industry();
 ind.modifyTextByClassName('mV', 'money');
 // Row materials
-let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 100, 40, 10, 0, [true, 3000]);
+let rM1 = new RawMaterial(`${gSC[0]['RM1']}`, 1, 1000, 400, 100, 0, [true, 3000]);
 rM1.initialisation;
-let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 200, 60, 15, 2);
+let rM2 = new RawMaterial(`${gSC[0]['RM2']}`, 2, 2000, 600, 150, 10);
 rM2.initialisation;
-let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 500, 20, 5, -1);
+let rM3 = new RawMaterial(`${gSC[0]['RM3']}`, 3, 5000, 200, 500, -5);
 rM3.initialisation;
 // Base Product
 // Base Product A
