@@ -48,13 +48,13 @@ Le prix de chaque matière première est recalculée toutes les secondes de la m
   - Prix maximum atteignable : 260
   - Prix de base : 200
   - Vélocité : 15
-  - Tendance : 2
+  - Tendance : 1
 - **Matière première 3**
   - Prix minimum atteignable : 480
   - Prix maximum atteignable : 520
   - Prix de base : 500
   - Vélocité : 5
-  - Tendance : -1
+  - Tendance : -0.5
 ### Autoclickers ###
 Les autoclickers produisent a intervalle de temps régulier des autoclickers, quand il n'y en a qu'un d'acheter cette intervalle est de 2 secondes mais il diminue au fur et à mesure que des autoclickers sont produits. Cependant les autoclickers subissent l'inflation et à chaque fois qu'un autoclickers est acheté les bornes minimum atteignable et maximum atteignable sont multipliées par la valeur de l'inflation.
 Autoclickers :
